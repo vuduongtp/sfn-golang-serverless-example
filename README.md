@@ -4,7 +4,7 @@ This is basic example of how to use [Serverless Framework](https://www.serverles
 
 # Overview
 
- - Wait few minutes
+ - Wait few seconds
  - Then uses Lambda to process something
  - Run Golang code to execute step function
  
