@@ -18,7 +18,7 @@ Run Serverless deploy:
 
     sls deploy
 After deploy completely, open [AWS Console](console.aws.amazon.com/) and check result
-![Result](docs/image/workflow.png)
+![Result](docs/image/workflow.png)\
 Then copy Step functions ARN.\
 Open file main.go and replace `stateMachineArn` variable value with your Step functions ARN.\
 Run execution:
