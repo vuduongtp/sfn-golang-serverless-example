@@ -1,0 +1,66 @@
+service: ${self:custom.mainAppName.${opt:stage, 'dev'}}-functions
+
+frameworkVersion: ">=2.63.0 <2.72.3"
+useDotenv: true
+
+plugins:
+  - serverless-hooks-plugin
+  - serverless-step-functions
+
+custom:
+  mainAppName:
+    dev: go-sfn
+  deploymentBuckets:
+    dev: dev-sls-bucket
+
+  hooks:
+    before:package:initialize:
+      - env GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o functions/step functions/step/main.go
+    after:deploy:finalize:
+      - rm -rf .serverless functions/step/main
+
+provider:
+  lambdaHashingVersion: "20201221"
+  name: aws
+  runtime: go1.x
+  memorySize: 128
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'ap-southeast-1'}
+  environment:
+    STAGE: ${opt:stage, 'dev'}
+    DEBUG: true
+    DB_LOG: true
+    CONFIG_NAME: ${self:custom.mainAppName.${opt:stage, 'dev'}}-${opt:stage, 'dev'}
+
+package:
+  individually: true
+  patterns:
+    - "!./**"
+    - .env
+
+functions:
+  TestStep:
+    name: ${self:service}-step-${opt:stage, 'dev'}
+    timeout: 900
+    handler: functions/step/main
+    package:
+      patterns:
+        - functions/step/main
+
+stepFunctions:
+  stateMachines:
+    myStateMachine:
+      name: "vuduongtp"
+      definition:
+        Comment: "Wait 30s then run Lambda function"
+        StartAt: WaitFewSeconds
+        States:
+          WaitFewSeconds:
+            Type: Wait
+            Seconds: 30
+            Next: RunLambda
+          RunLambda:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [TestStep, Arn]
+            End: true
