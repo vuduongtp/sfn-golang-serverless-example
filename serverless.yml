@@ -26,11 +26,6 @@ provider:
   memorySize: 128
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'ap-southeast-1'}
-  environment:
-    STAGE: ${opt:stage, 'dev'}
-    DEBUG: true
-    DB_LOG: true
-    CONFIG_NAME: ${self:custom.mainAppName.${opt:stage, 'dev'}}-${opt:stage, 'dev'}
 
 package:
   individually: true
